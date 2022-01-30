@@ -82,9 +82,9 @@ namespace MoviesAPI.Controllers
 
         // POST: api/Genres
         [HttpPost]
-        public async Task<ActionResult<GenreDTO>> PostGenre([FromBody] GenreDTO genreDTO)
+        public async Task<ActionResult<GenreDTO>> PostGenre([FromBody] GenreCreateDTO genreCreateDTO)
         {
-            Genre genre = genreDTO;
+            Genre genre = genreCreateDTO;
             await _context.Genres.AddAsync(genre);
             await _context.SaveChangesAsync();
 
