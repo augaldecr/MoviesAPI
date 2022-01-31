@@ -9,7 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddTransient<IFilesStorage, AzureFileStorage>();
+//builder.Services.AddTransient<IFilesStorage, AzureFileStorage>();
+builder.Services.AddTransient<IFilesStorage, LocalFileStorage>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDbContext<ApplicationDbContext>(opts =>
     opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -21,6 +23,10 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
+app.UseRouting();
 
 app.UseAuthorization();
 
