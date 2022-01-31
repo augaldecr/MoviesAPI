@@ -9,7 +9,7 @@ namespace MoviesAPI.Data
         {
         }
 
-        public DbSet<Actor> Actor { get; set; }
+        public DbSet<Actor> Actors { get; set; }
         public DbSet<Genre> Genres { get; set; }
     }
 }

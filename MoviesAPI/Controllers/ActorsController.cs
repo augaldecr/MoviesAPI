@@ -1,7 +1,9 @@
 ﻿#nullable disable
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.Data;
+using MoviesAPI.Helpers;
 using MoviesAPI.Services;
 using MoviesAPI.Shared.DTOs;
 using MoviesAPI.Shared.Entities;
@@ -28,9 +30,11 @@ namespace MoviesAPI.Controllers
 
         // GET: api/Actors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ActorDTO>>> GetActor()
+        public async Task<ActionResult<IEnumerable<ActorDTO>>> GetActor([FromQuery] PaginationDTO paginationDTO)
         {
-            var actors = await _context.Actor.ToListAsync();
+            var queryable = _context.Actors.AsQueryable();
+            await HttpContext.InsertParametersPagination(queryable, paginationDTO.Qty);
+            var actors = await queryable.Paginate(paginationDTO).ToListAsync();
             return actors.Select<Actor, ActorDTO>(x => x).ToArray();
         }
 
@@ -38,7 +42,7 @@ namespace MoviesAPI.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ActorDTO>> GetActor(int id)
         {
-            var actor = await _context.Actor.FindAsync(id);
+            var actor = await _context.Actors.FindAsync(id);
 
             if (actor == null)
             {
@@ -54,7 +58,7 @@ namespace MoviesAPI.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> PutActor(int id, [FromForm] ActorCreateDTO actorDTO)
         {
-            var actor = await _context.Actor.FindAsync(id);
+            var actor = await _context.Actors.FindAsync(id);
 
             if (actor is null)
                 return NotFound();
@@ -80,6 +84,37 @@ namespace MoviesAPI.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult> PatchActor(int id, [FromBody] JsonPatchDocument<ActorPatchDTO> patchDocument)
+        {
+            if (patchDocument is null)
+                return BadRequest();
+
+            var actor = await _context.Actors.FindAsync(id);
+
+            if (actor is null)
+                return NotFound();
+
+            ActorPatchDTO actorPatchDTO = actor;
+
+            patchDocument.ApplyTo(actorPatchDTO, ModelState);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!string.IsNullOrEmpty(actorPatchDTO.Name) && !actorPatchDTO.Name.Equals(actor.Name))
+                actor.Name = actorPatchDTO.Name;
+
+            if (actorPatchDTO.Birthday.Year != 0001 && actorPatchDTO.Birthday != actor.Birthday)
+                actor.Birthday = actorPatchDTO.Birthday;
+
+            _context.Update(actor);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         // POST: api/Actors
         [HttpPost]
         public async Task<ActionResult<Actor>> PostActor([FromForm] ActorCreateDTO actorDTO)
@@ -96,7 +131,7 @@ namespace MoviesAPI.Controllers
                 actor.Photo = await _filesStorage.SaveFile(data, extension, container, actorDTO.Photo.ContentType);
             }
 
-            await _context.Actor.AddAsync(actor);
+            await _context.Actors.AddAsync(actor);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetActor", new { id = actor.Id }, actor);
@@ -106,13 +141,13 @@ namespace MoviesAPI.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteActor(int id)
         {
-            var actor = await _context.Actor.FindAsync(id);
+            var actor = await _context.Actors.FindAsync(id);
             if (actor == null)
             {
                 return NotFound();
             }
 
-            _context.Actor.Remove(actor);
+            _context.Actors.Remove(actor);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -120,7 +155,7 @@ namespace MoviesAPI.Controllers
 
         private bool ActorExists(int id)
         {
-            return _context.Actor.Any(e => e.Id == id);
+            return _context.Actors.Any(e => e.Id == id);
         }
     }
 }

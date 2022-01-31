@@ -22,5 +22,14 @@ namespace MoviesAPI.Shared.Entities
                 Photo = actor.Photo,
             };
         }
+
+        public static implicit operator ActorPatchDTO(Actor actor)
+        {
+            return new ActorPatchDTO
+            {
+                Name = actor.Name,
+                Birthday = actor.Birthday,
+            };
+        }
     }
 }
