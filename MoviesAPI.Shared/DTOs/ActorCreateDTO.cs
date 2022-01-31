@@ -1,4 +1,6 @@
-﻿using MoviesAPI.Shared.Entities;
+﻿using Microsoft.AspNetCore.Http;
+using MoviesAPI.Shared.Entities;
+using MoviesAPI.Shared.Validations;
 using System.ComponentModel.DataAnnotations;
 
 namespace MoviesAPI.Shared.DTOs
@@ -9,6 +11,9 @@ namespace MoviesAPI.Shared.DTOs
         [StringLength(150)]
         public string Name { get; init; }
         public DateTime Birthday { get; init; }
+        [FileSizeValidation(4)]
+        [FileTypeValidation(FileTypesGroups.Image)]
+        public IFormFile Photo { get; set; }
 
         public static implicit operator Actor(ActorCreateDTO actorDTO)
         {
