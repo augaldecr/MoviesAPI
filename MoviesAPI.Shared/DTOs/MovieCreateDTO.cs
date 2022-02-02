@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using MoviesAPI.Shared.Entities;
+using MoviesAPI.Shared.Helpers;
 using MoviesAPI.Shared.Validations;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MoviesAPI.Shared.DTOs
 {
@@ -21,6 +18,12 @@ namespace MoviesAPI.Shared.DTOs
         [FileTypeValidation(FileTypesGroups.Image)]
         public IFormFile Poster { get; init; }
 
+        [ModelBinder(BinderType = typeof(TypeBinder<ICollection<int>>))]
+        public ICollection<int> GenresIds { get; set; }
+
+        [ModelBinder(BinderType = typeof(TypeBinder<ICollection<ActorMovieCreateDTO>>))]
+        public ICollection<ActorMovieCreateDTO> Actors { get; set; }
+
         public static implicit operator Movie(MovieCreateDTO movieDTO)
         {
             return new Movie
@@ -28,6 +31,14 @@ namespace MoviesAPI.Shared.DTOs
                 Title = movieDTO.Title,
                 OnBillboard = movieDTO.OnBillboard,
                 ReleaseDate = movieDTO.ReleaseDate,
+                ActorMovies = movieDTO.Actors is null ? 
+                               new List<ActorMovie>() :
+                               movieDTO.Actors.Select(a => new ActorMovie 
+                                                           { 
+                                                                ActorId = a.ActorId, 
+                                                                Character = a.Character 
+                                                            }
+                               ).ToList(),
             };
         }
     }

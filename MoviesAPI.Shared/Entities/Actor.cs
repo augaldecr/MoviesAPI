@@ -12,6 +12,8 @@ namespace MoviesAPI.Shared.Entities
         public DateTime Birthday { get; set; }
         public string Photo { get; set; }
 
+        public List<ActorMovie> ActorMovies { get; set; }
+
         public static implicit operator ActorDTO(Actor actor)
         {
             return new ActorDTO

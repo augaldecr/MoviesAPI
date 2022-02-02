@@ -13,6 +13,9 @@ namespace MoviesAPI.Shared.Entities
         public DateTime ReleaseDate { get; set; }
         public string Poster { get; set; }
 
+        public List<ActorMovie> ActorMovies { get; set; }
+        public ICollection<Genre> Genres { get; set; }
+
         public static implicit operator MovieDTO(Movie movie)
         {
             return new MovieDTO
