@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Linq.Dynamic.Core;
+using Microsoft.Extensions.Logging;
 
 namespace MoviesAPI.Controllers
 {
@@ -21,10 +23,13 @@ namespace MoviesAPI.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IFilesStorage _filesStorage;
+        private readonly ILogger<MoviesController> _logger;
         private const string container = "movies";
 
-        public MoviesController(ApplicationDbContext context, IFilesStorage filesStorage) =>
-                                                                    (_context, _filesStorage) = (context, filesStorage);
+        public MoviesController(ApplicationDbContext context, 
+                                IFilesStorage filesStorage, 
+                                ILogger<MoviesController> logger) => 
+                                        (_context, _filesStorage, _logger) = (context, filesStorage, logger);
 
         // GET: api/Movies
         [HttpGet]
@@ -74,6 +79,19 @@ namespace MoviesAPI.Controllers
             if (filterMoviesDTO.GenreId != 0)
                 moviesQueryable = moviesQueryable.Where(m => m.Genres.Select(g => g.Id).Contains(filterMoviesDTO.GenreId));
 
+            if (!string.IsNullOrEmpty(filterMoviesDTO.OrderField))
+            {
+                var orderType = filterMoviesDTO.AscOrder ? "ascending" : "descending";
+                try
+                {
+                    moviesQueryable = moviesQueryable.OrderBy($"{filterMoviesDTO.OrderField} {orderType}");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message, ex);
+                }
+            }
+
             await HttpContext.InsertParametersPagination(moviesQueryable, filterMoviesDTO.QuantityPerPage);
 
             var movies = await moviesQueryable.Paginate(filterMoviesDTO.Pagination).ToArrayAsync();
@@ -84,16 +102,20 @@ namespace MoviesAPI.Controllers
 
         // GET: api/Movies/5
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<MovieDTO>> GetMovie(int id)
+        public async Task<ActionResult<MovieDetailsDTO>> GetMovie(int id)
         {
-            var movie = await _context.Movies.FindAsync(id);
+            var movie = await _context.Movies
+                                .Include(m => m.ActorMovies) 
+                                    .ThenInclude(am => am.Actor)
+                                .Include(m => m.Genres)
+                                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (movie == null)
             {
                 return NotFound();
             }
 
-            MovieDTO movieDTO = movie;
+            MovieDetailsDTO movieDTO = movie;
 
             return movieDTO;
         }

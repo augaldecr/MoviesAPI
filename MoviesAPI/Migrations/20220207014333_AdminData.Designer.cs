@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MoviesAPI.Data;
 using NetTopologySuite.Geometries;
@@ -12,9 +13,10 @@ using NetTopologySuite.Geometries;
 namespace MoviesAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220207014333_AdminData")]
+    partial class AdminData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,6 +80,15 @@ namespace MoviesAPI.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "9aae0b6d-d50c-4d0a-9t80-2a6873e3845d",
+                            ConcurrencyStamp = "7b9168f2-1e33-4168-8df9-eba28b9637e0",
+                            Name = "Admin",
+                            NormalizedName = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -168,6 +179,24 @@ namespace MoviesAPI.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "5673b8cf-12de-48s6-92ad-fae4a77932ad",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "52eb92c0-92df-4c86-8ad8-e74916a6b3f8",
+                            Email = "augaldecr@gmail.com",
+                            EmailConfirmed = false,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "augaldecr@gmail.com",
+                            NormalizedUserName = "augaldecr@gmail.com",
+                            PasswordHash = "AQAAAAEAACcQAAAAEBJ5CuULuofoc4SD7Twh5I8HMVID4WxDBp8einV7H8RFMHMvv5HexU3UTKsEiDbRDg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "157e19eb-1063-427e-8969-c84ae719f475",
+                            TwoFactorEnabled = false,
+                            UserName = "augaldecr@gmail.com"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -193,6 +222,15 @@ namespace MoviesAPI.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AspNetUserClaims", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
+                            ClaimValue = "Admin",
+                            UserId = "5673b8cf-12de-48s6-92ad-fae4a77932ad"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -362,35 +400,6 @@ namespace MoviesAPI.Migrations
                     b.ToTable("Movies");
                 });
 
-            modelBuilder.Entity("MoviesAPI.Shared.Entities.Review", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MovieId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Punctuation")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MovieId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Reviews");
-                });
-
             modelBuilder.Entity("CinemaMovie", b =>
                 {
                     b.HasOne("MoviesAPI.Shared.Entities.Cinema", null)
@@ -489,23 +498,6 @@ namespace MoviesAPI.Migrations
                     b.Navigation("Actor");
 
                     b.Navigation("Movie");
-                });
-
-            modelBuilder.Entity("MoviesAPI.Shared.Entities.Review", b =>
-                {
-                    b.HasOne("MoviesAPI.Shared.Entities.Movie", "Movie")
-                        .WithMany()
-                        .HasForeignKey("MovieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Movie");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MoviesAPI.Shared.Entities.Actor", b =>

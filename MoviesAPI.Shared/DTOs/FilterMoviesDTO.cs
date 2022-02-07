@@ -13,9 +13,12 @@ namespace MoviesAPI.Shared.DTOs
 
         public PaginationDTO Pagination {   get => new PaginationDTO() { Page = Page, Qty = QuantityPerPage }; }
 
-        public string Title { get; set; }
-        public int GenreId { get; set; }
-        public bool OnBillboard { get; set; }
-        public bool FutureReleases { get; set; }
+        public string Title { get; init; }
+        public int GenreId { get; init; }
+        public bool OnBillboard { get; init; }
+        public bool FutureReleases { get; init; }
+        public string OrderField { get; init; }
+        public bool AscOrder { get; set; }
+
     }
 }
