@@ -28,7 +28,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(opts =>
     opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
     sqlServerOptions => sqlServerOptions.UseNetTopologySuite()));
 
-builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddControllers( opts =>
+{
+    opts.Filters.Add(typeof(ErrorFilter));
+}).AddNewtonsoftJson();
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
