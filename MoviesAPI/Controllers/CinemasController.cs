@@ -55,13 +55,13 @@ namespace MoviesAPI.Controllers
             return cinemaDTO;
         }
 
-        [HttpGet("closer")]
-        public async Task<ActionResult<NearbyCinemaDTO[]>> Closers([FromQuery] NearestCinemasFilterDTO filter)
+        [HttpGet("nearest")]
+        public async Task<ActionResult<NearbyCinemaDTO[]>> Nearest([FromQuery] NearestCinemasFilterDTO filter)
         {
             var userLocation = _geometryFactory.CreatePoint(new Coordinate(filter.Long, filter.Lat));
 
             var movieTheaters = await _context.Cinemas.OrderBy(x => x.Location.Distance(userLocation))
-                                                      .Where(x => x.Location.IsWithinDistance(userLocation, filter.DistanceKms))
+                                                      .Where(x => x.Location.IsWithinDistance(userLocation, filter.DistanceKms * 1000))
                                                       .Select(x => new NearbyCinemaDTO
                                                       {
                                                           Id = x.Id,

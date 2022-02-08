@@ -9,7 +9,7 @@ namespace MoviesAPI.Shared.DTOs
         [Range(-180, 180)]
         public double Long { get; init; }
         private int distanceKms = 10;
-        private int maxDistanceKms = 50;
+        private int maxDistanceKms = 100;
 
         public int DistanceKms
         {

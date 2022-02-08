@@ -67,7 +67,7 @@ namespace MoviesAPI.Controllers
         // POST: api/Reviews
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult<Review>> PostReview(int movieId, [FromBody]ReviewCreateDTO reviewCreateDTO)
+        public async Task<ActionResult> PostReview(int movieId, [FromBody]ReviewCreateDTO reviewCreateDTO)
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier).Value;
 

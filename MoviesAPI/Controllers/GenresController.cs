@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -45,44 +47,28 @@ namespace MoviesAPI.Controllers
 
             GenreDTO genreDTO = genre;
 
-            return Ok(genreDTO);
+            return genreDTO;
         }
 
         // PUT: api/Genres/5
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> PutGenre(int id, GenreDTO genreDTO)
+        public async Task<IActionResult> PutGenre(int id, GenreCreateDTO genreCreateDTO)
         {
-            if (id != genreDTO.Id)
-            {
-                return BadRequest();
-            }
+            Genre genre = await _context.Genres.FindAsync(id);
 
-            Genre genre = genreDTO;
+            if (genre is null)
+                return NotFound();
 
-            _context.Entry(genre).State = EntityState.Modified;
+            genre.Name = genreCreateDTO.Name;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!GenreExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
         // POST: api/Genres
         [HttpPost]
-        public async Task<ActionResult<GenreDTO>> PostGenre([FromBody] GenreCreateDTO genreCreateDTO)
+        public async Task<ActionResult> PostGenre([FromBody] GenreCreateDTO genreCreateDTO)
         {
             Genre genre = genreCreateDTO;
             await _context.Genres.AddAsync(genre);
@@ -93,6 +79,7 @@ namespace MoviesAPI.Controllers
 
         // DELETE: api/Genres/5
         [HttpDelete("{id}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         public async Task<IActionResult> DeleteGenre(int id)
         {
             var genre = await _context.Genres.FindAsync(id);
@@ -105,11 +92,6 @@ namespace MoviesAPI.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool GenreExists(int id)
-        {
-            return _context.Genres.Any(e => e.Id == id);
         }
     }
 }

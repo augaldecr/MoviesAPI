@@ -95,9 +95,9 @@ namespace MoviesAPI.Controllers
             await HttpContext.InsertParametersPagination(moviesQueryable, filterMoviesDTO.QuantityPerPage);
 
             var movies = await moviesQueryable.Paginate(filterMoviesDTO.Pagination).ToArrayAsync();
-            MovieDTO[] moviesDTO = movies.Select<Movie, MovieDTO>(x => x).ToArray();
+            var moviesDTO = movies.Select<Movie, MovieDTO>(x => x).ToArray();
 
-            return Ok(moviesDTO);
+            return moviesDTO;
         }
 
         // GET: api/Movies/5

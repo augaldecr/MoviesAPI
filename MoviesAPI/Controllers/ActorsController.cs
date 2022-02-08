@@ -117,7 +117,7 @@ namespace MoviesAPI.Controllers
 
         // POST: api/Actors
         [HttpPost]
-        public async Task<ActionResult<Actor>> PostActor([FromForm] ActorCreateDTO actorDTO)
+        public async Task<ActionResult> PostActor([FromForm] ActorCreateDTO actorDTO)
         {
             Actor actor = actorDTO;
 

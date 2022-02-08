@@ -48,10 +48,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         }
     );
 
-
-//builder.Services.AddDataProtection();
-//builder.Services.AddTransient<HashService>();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -67,3 +63,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
